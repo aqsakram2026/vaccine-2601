@@ -1,0 +1,285 @@
+<?php
+session_start();
+include_once __DIR__ . '/../config.php';
+
+$sweetAlertScript = "";
+
+if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['btn'])) {
+    $email = esc($_POST['offEmail']);
+    $pass  = trim($_POST['password']);
+
+    $query = "SELECT * FROM hospitals WHERE email = '$email'";
+    $result = mysqli_query($connect, $query);
+
+    if ($row = mysqli_fetch_assoc($result)) {
+        if (password_verify($pass, $row['password'])) {
+
+            if ($row['STATUS'] == 'pending') {
+                $sweetAlertScript = "Swal.fire({icon: 'warning', title: 'Pending Approval', text: 'Your account is still pending. Please wait for admin approval!'});";
+            } 
+            elseif ($row['STATUS'] == 'rejected') {
+                $sweetAlertScript = "Swal.fire({icon: 'error', title: 'Request Rejected', text: 'Sorry! Your registration request has been rejected by the admin.'});";
+            } 
+            elseif ($row['STATUS'] == 'accepted') {
+                // Set Sessions
+                $_SESSION['hospital_id']   = $row['id'];
+                $_SESSION['hospital_name'] = $row['hospital_name'];
+
+                // header('location:hospital_dashboard.php');
+                // exit();
+                // Success Alert and Redirect to hospital_dashboard.php
+                $sweetAlertScript = "
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Login Successful!',
+                        text: 'Redirecting to your dashboard...',
+                        timer: 1500,
+                        showConfirmButton: false
+                    }).then(() => { 
+                        window.location.href = './hospital_dashboard.php'; 
+                    });
+                ";
+            }
+
+        } else {
+            $sweetAlertScript = "Swal.fire({icon: 'error', title: 'Incorrect Password', text: 'The password you entered is incorrect.'});";
+        }
+    } else {
+        $sweetAlertScript = "Swal.fire({icon: 'error', title: 'Email Not Found', text: 'This email is not registered in our system.'});";
+    }
+}
+?>
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hospital Login - E-Vaccine Portal</title>
+    <?php include __DIR__ . '/../includes/portal-head.php'; ?>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="../includes/theme.js?v=6"></script>
+    <link href="../includes/theme.css?v=5" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <!-- FA icons  -->
+     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.3.1/css/all.css" integrity="sha512-x9WwyMYBnlXMNQ6kQ/Lyzu1NqIhLQKL5Oq6xByfXuRj7s9CskyCbLv/1IjqzJmXwFXWr0ov6jBV7Qbc0hh9nHg==" crossorigin="anonymous" referrerpolicy="no-referrer">
+
+
+    <style>
+        :root {
+            --medical-teal: #3C9D93;
+            --teal-dark: #2A736B;
+            --dark-navy: #1A2530;
+            --bg-light: #F4F7F6;
+            --border-color: #E2E8F0;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: var(--bg-light);
+            color: var(--dark-navy);
+        }
+        .portal-card {
+            background: #ffffff;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+        }
+        .overview-box {
+            background: #ffffff;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 24px;
+        }
+        .sidebar-menu .nav-link {
+            color: var(--dark-navy);
+            font-weight: 600;
+            padding: 12px 16px;
+            border-radius: 6px;
+            margin-bottom: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: all 0.2s ease;
+        }
+        .sidebar-menu .nav-link:hover {
+            background-color: #F1F5F9;
+            color: var(--medical-teal);
+        }
+        .sidebar-menu .nav-link.active {
+            background-color: var(--medical-teal);
+            color: #ffffff !important;
+        }
+        .form-label {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: #334155;
+            margin-bottom: 6px;
+        }
+        .form-control {
+            border-radius: 6px;
+            border: 1px solid #CBD5E1;
+            padding: 10px 12px;
+            font-size: 0.9rem;
+            background-color: #ffffff;
+            color: #1A2530;
+        }
+        .form-control:focus {
+            border-color: var(--medical-teal);
+            box-shadow: 0 0 0 3px rgba(60, 157, 147, 0.15);
+            background-color: #ffffff;
+            color: #1A2530;
+        }
+        .btn-teal {
+            background-color: var(--medical-teal);
+            color: #ffffff;
+            font-weight: 600;
+            border-radius: 6px;
+            padding: 10px 20px;
+            border: none;
+        }
+        .btn-teal:hover {
+            background-color: var(--teal-dark);
+            color: #ffffff;
+        }
+        .auth-footer-links a {
+            color: var(--medical-teal);
+            font-weight: 600;
+            text-decoration: none;
+        }
+        .auth-footer-links a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <?php include __DIR__ . '/../includes/virus-scene-background.php'; ?>
+
+    <!-- Main Container -->
+    <div class="container py-4">
+
+        <!-- Top Overview Banner -->
+        <div class="overview-box mb-4">
+            <div class="d-flex align-items-center gap-2 mb-2">
+                <i class="bi bi-box-arrow-in-right text-teal fs-4"></i>
+                <h4 class="fw-bold m-0">Hospital Partner Portal Login</h4>
+            </div>
+            <p class="text-secondary m-0" style="max-width: 850px; font-size: 0.95rem;">
+                Access your hospital dashboard to manage vaccination appointments, update stock, and review patient records securely.
+            </p>
+        </div>
+
+        <!-- Sidebar + Form Layout -->
+        <div class="row g-4">
+
+            <!-- Sidebar Navigation -->
+            <div class="col-lg-3">
+                <div class="portal-card p-3">
+                    <div class="px-2 mb-3">
+                        <small class="text-uppercase text-muted fw-bold">Portal Navigation</small>
+                    </div>
+                    <div class="nav flex-column sidebar-menu">
+                        <a href="../index.php" class="nav-link">
+                            <span><i class="bi bi-house me-2"></i> Home</span>
+                            <i class="bi bi-chevron-right small"></i>
+                        </a>
+                        <a href="hospital_register.php" class="nav-link">
+                            <span><i class="bi bi-building-add me-2"></i> Hospital Registration</span>
+                            <i class="bi bi-chevron-right small"></i>
+                        </a>
+                        <a href="hospital_login.php" class="nav-link active">
+                            <span><i class="bi bi-box-arrow-in-right me-2"></i> Hospital Login</span>
+                            <i class="bi bi-chevron-right small"></i>
+                        </a>
+                        <a href="hospital_dashboard.php" class="nav-link">
+                            <span><i class="bi bi-speedometer2 me-2"></i> Hospital Dashboard</span>
+                            <i class="bi bi-chevron-right small"></i>
+                        </a>
+                        <a href="hospital_status.php" class="nav-link">
+                            <span><i class="bi bi-check2-circle me-2"></i> Hospital Status</span>
+                            <i class="bi bi-chevron-right small"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Login Form Area -->
+            <div class="col-lg-9">
+                <div class="portal-card p-4 p-md-5" style="min-height: 520px; display: flex; flex-direction: column; justify-content: space-between;">
+                    
+                    <div>
+                        <div class="border-bottom pb-3 mb-4">
+                            <h4 class="fw-bold mb-1">Hospital Login</h4>
+                            <p class="text-muted mb-0 small">Enter your credentials to access your dashboard.</p>
+                        </div>
+
+                        <form method="POST">
+                            <div class="row g-3">
+                                
+                                <div class="col-12">
+                                    <label class="form-label">Official Email Address:</label>
+                                    <input type="email" class="form-control" name="offEmail" placeholder="admin@hospitaldomain.com" required>
+                                </div>
+
+                                <div class="col-12">
+                                    <label class="form-label">Password:</label>
+                                    <input type="password" id="pass" class="form-control" name="password" placeholder="••••••••••••" required>
+                                    <span id="show_hide"><i class="fa-solid fa-eye" id="icon"></i></span>
+                                </div>
+                                
+
+                                <div class="col-12 pt-2">
+                                    <button type="submit" name="btn" class="btn btn-teal">Login</button>
+                                    <a class="small ms-3" href="../forgot-password.php?type=hospital">Forgot password?</a>
+                                </div>
+
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- Links Below Form -->
+                    <div class="d-flex justify-content-between align-items-center mt-4 pt-3 border-top small text-muted auth-footer-links">
+                        <p class="m-0">Don't have an account? <a href="hospital_register.php">Register Here</a></p>
+                        <p class="m-0">Already registered? <a href="hospital_status.php">Check Registration Status</a></p>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+    <!-- Bootstrap 5 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Script execute at the bottom -->
+    <?php if (!empty($sweetAlertScript)) { echo "<script>$sweetAlertScript</script>"; } ?>
+
+<?php include __DIR__ . '/../includes/portal-footer.php'; ?>
+</body>
+</html>
+
+
+
+<script>
+    let span = document.getElementById('show_hide');
+    let password = document.getElementById('pass');
+    let i = document.getElementById('icon');
+
+
+    span.addEventListener('click', function(){
+        if(password.type == 'text'){
+            password.type = "password";
+        }else{
+            password.type = 'text';
+        }
+        i.classList.toggle('fa-eye-slash');
+        i.classList.toggle('fa-eye');
+    })
+
+</script>

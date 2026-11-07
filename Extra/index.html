@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>E-Vaccine | Vaccination Management System</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --ink: #0c2d48;
+            --muted: #4b6075;
+            --paper: #f4f8fb;
+            --surface: #ffffff;
+            --line: #d8e2ea;
+
+            /* Teeno sections ke rang wahi hain jo unke apne pages mein hain */
+            --parent: #0d6efd;
+            --hospital: #2a736b;
+            --admin: #212529;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            background: var(--paper);
+            color: var(--ink);
+            font-family: 'Plus Jakarta Sans', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+        }
+
+        .page {
+            max-width: 980px;
+            margin: 0 auto;
+            padding: 28px 24px 56px;
+        }
+
+        .wordmark {
+            font-weight: 800;
+            font-size: 1.15rem;
+            letter-spacing: -0.01em;
+        }
+
+        .wordmark span { color: var(--parent); }
+
+        /* ---------- Hero ---------- */
+        .hero { padding: 64px 0 36px; }
+
+        h1 {
+            margin: 0 0 18px;
+            font-size: clamp(2.5rem, 7vw, 4.4rem);
+            font-weight: 800;
+            line-height: 1.04;
+            letter-spacing: -0.03em;
+        }
+
+        .lead {
+            margin: 0;
+            max-width: 56ch;
+            color: var(--muted);
+            font-size: 1.1rem;
+        }
+
+        /* ---------- Age rail (vaccines table ki Age_Limit values) ---------- */
+        .rail {
+            list-style: none;
+            margin: 44px 0 0;
+            padding: 0;
+            display: flex;
+            justify-content: space-between;
+            gap: 8px;
+            position: relative;
+        }
+
+        .rail::before {
+            content: "";
+            position: absolute;
+            left: 6px;
+            right: 6px;
+            top: 6px;
+            height: 2px;
+            background: var(--line);
+        }
+
+        .rail li {
+            position: relative;
+            padding-top: 26px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--ink);
+        }
+
+        .rail li::before {
+            content: "";
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background: var(--surface);
+            border: 3px solid var(--parent);
+        }
+
+        .rail-note {
+            margin: 14px 0 0;
+            font-size: 0.9rem;
+            color: var(--muted);
+        }
+
+        /* ---------- Teen darwaze ---------- */
+        .doors {
+            margin-top: 44px;
+            background: var(--surface);
+            border: 1px solid var(--line);
+            border-radius: 14px;
+            overflow: hidden;
+        }
+
+        .door {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 20px 32px;
+            align-items: center;
+            padding: 26px 28px 26px 30px;
+            border-left: 8px solid var(--accent);
+        }
+
+        .door + .door { border-top: 1px solid var(--line); }
+
+        .door.parent   { --accent: var(--parent); }
+        .door.hospital { --accent: var(--hospital); }
+        .door.admin    { --accent: var(--admin); }
+
+        .door h2 {
+            margin: 0 0 4px;
+            font-size: 1.35rem;
+            font-weight: 800;
+            letter-spacing: -0.01em;
+        }
+
+        .door p {
+            margin: 0;
+            max-width: 50ch;
+            color: var(--muted);
+        }
+
+        .actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            align-items: center;
+            justify-content: flex-end;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 10px 20px;
+            border-radius: 8px;
+            border: 2px solid var(--accent);
+            font: inherit;
+            font-weight: 600;
+            text-decoration: none;
+            color: var(--accent);
+            background: transparent;
+        }
+
+        .btn.solid { background: var(--accent); color: #fff; }
+
+        .btn:hover { filter: brightness(0.92); }
+
+        .btn:focus-visible,
+        .textlink:focus-visible {
+            outline: 3px solid #ffb703;
+            outline-offset: 2px;
+        }
+
+        .textlink {
+            color: var(--accent);
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+
+        footer {
+            margin-top: 40px;
+            font-size: 0.9rem;
+            color: var(--muted);
+        }
+
+        /* ---------- Mobile ---------- */
+        @media (max-width: 720px) {
+            .hero { padding-top: 40px; }
+
+            .rail {
+                flex-direction: column;
+                gap: 14px;
+            }
+            .rail::before {
+                left: 6px;
+                right: auto;
+                top: 6px;
+                bottom: 6px;
+                width: 2px;
+                height: auto;
+            }
+            .rail li { padding: 0 0 0 30px; }
+
+            .door { grid-template-columns: 1fr; }
+            .actions { justify-content: flex-start; }
+        }
+    </style>
+</head>
+<body>
+    <div class="page">
+
+        <div class="wordmark"><span>+</span> E-Vaccine</div>
+
+        <section class="hero">
+            <h1>Every dose, on schedule.</h1>
+            <p class="lead">
+                E-Vaccine connects parents, hospitals and the health administration.
+                Register your child, book an appointment at an approved hospital,
+                and keep every hospital's vaccine stock up to date.
+            </p>
+
+            <ul class="rail" aria-label="Vaccination ages tracked in the system">
+                <li>At birth</li>
+                <li>6 weeks</li>
+                <li>10 weeks</li>
+                <li>14 weeks</li>
+                <li>9 months</li>
+                <li>15 months</li>
+            </ul>
+            <p class="rail-note">Doses are tracked by the child's age.</p>
+        </section>
+
+        <main class="doors">
+
+            <section class="door parent">
+                <div>
+                    <h2>Parents</h2>
+                    <p>Register your child, see which vaccine is due next and book an appointment.</p>
+                </div>
+                <div class="actions">
+                    <a class="btn solid" href="parents/parent-login.php">Parent login</a>
+                    <a class="btn" href="parents/parent.php">Create account</a>
+                </div>
+            </section>
+
+            <section class="door hospital">
+                <div>
+                    <h2>Hospitals</h2>
+                    <p>Apply to join, manage your vaccine stock and mark each child as vaccinated.</p>
+                </div>
+                <div class="actions">
+                    <a class="btn solid" href="hospital/hospital_login.php">Hospital login</a>
+                    <a class="btn" href="hospital/hospital_register.php">Apply to join</a>
+                    <a class="textlink" href="hospital/hospital_status.php">Check approval status</a>
+                </div>
+            </section>
+
+            <section class="door admin">
+                <div>
+                    <h2>Administration</h2>
+                    <p>Approve hospitals, manage vaccines and parents, and monitor stock.</p>
+                </div>
+                <div class="actions">
+                    <a class="btn solid" href="admin/admin_login.php">Admin login</a>
+                </div>
+            </section>
+
+        </main>
+
+        <footer>E-Vaccine Management System &copy; 2026</footer>
+
+    </div>
+</body>
+</html>
